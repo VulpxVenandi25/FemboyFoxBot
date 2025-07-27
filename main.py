@@ -5,6 +5,7 @@ import json, requests, os
 
 load_dotenv()
 api_token = os.environ.get("API_TOKEN")
+itch_token = os.environ.get("ITCH_TOKEN")
 
 commands = [
     {"command": "/help", "description": "Ofrece una ayuda más detallada."},
@@ -89,7 +90,8 @@ async def show_novels_page(update: Update, context: ContextTypes.DEFAULT_TYPE, p
 async def show_novel_details(update: Update, context: ContextTypes.DEFAULT_TYPE, gameid: str):
     """Muestra los detalles de una novela específica"""
     # Obtener datos de la API
-    api_url = f"https://itch-api-backend.vercel.app/apigame/{gameid}"
+    api_url = f"https://itch.io/api/1/{itch_token}/game/{gameid}"
+
     response = requests.get(api_url)
     
     if response.status_code != 200:
