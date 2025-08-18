@@ -32,8 +32,8 @@ Un bot de Telegram que muestra información sobre novelas visuales traducidas al
 1. Clona el repositorio:
 
    ```bash
-   git clone https://github.com/tu-usuario/femboyFoxBot.git
-   cd femboyFoxBot
+   git clone https://github.com/VulpxVenandi25/FemboyFoxBot.git
+   cd FemboyFoxBot
    ```
 
 2. Crea y activa un entorno virtual (recomendado):
@@ -53,20 +53,20 @@ Un bot de Telegram que muestra información sobre novelas visuales traducidas al
 4. Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
 
    ```
-   API_TOKEN=tu_token_de_telegram
+   TELEGRAM_TOKEN=tu_token_de_telegram
    ITCH_TOKEN=tu_token_de_itch_io (opcional)
    ```
 
 5. Ejecuta el bot:
    ```bash
-   python bot.py
+   python main.py
    ```
 
 ## Estructura del proyecto
 
 ```
-femboyFoxBot/
-├── bot.py                # Código principal del bot
+FemboyFoxBot/
+├── main.py               # Código principal del bot
 ├── .env                  # Archivo de configuración (crearlo)
 ├── README.md             # Este archivo
 └── requirements.txt      # Dependencias del proyecto
