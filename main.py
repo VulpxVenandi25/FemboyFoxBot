@@ -13,14 +13,14 @@ commands = [
 ]
 
 async def say_hello(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    name = update.message.from_user.name
+    name = update.message.from_user.full_name
     await update.message.reply_html(f"""
 Hola {name}, soy femboyFoxBot y soy el encargado de compartir las novelas visuales traducidas al español qué mi creador, @VulpVenandi25 traduzca.
 
 Puedes seguir sus redes sociales desde este <a href="https://linktr.ee/vulpxvenandi25">link</a>, o usar el comando /help para más información.
 """)
 
-async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     commands_text = "\n".join([f'🔰 {com["command"]}: {com["description"]}' for com in commands])
     await update.message.reply_html(f"""
 Encantado de ayudar, los comando disponibles por ahora son los siguientes:
@@ -29,13 +29,21 @@ Encantado de ayudar, los comando disponibles por ahora son los siguientes:
 """)
     return
 
-# Cargar datos de novelas traducidas
-with open('json/allTranslated.json', 'r', encoding='utf-8') as f:
-    novels_data = json.load(f)
+# Cargar datos de novelas traducidas desde la API
+novels_data = []
+try:
+    response = requests.get("https://backend-vv25.vercel.app/api/novels")
+    response.raise_for_status()
+    novels_data = response.json()
+except requests.exceptions.RequestException as e:
+    print(f"Error en la petición HTTP: {e}")
+except Exception as e:
+    print(f"Error inesperado: {e}")
 
 # Configuración
 ITEMS_PER_PAGE = 10
-NOVELS_LIST = novels_data["allTranslated"]
+NOVELS_LIST = novels_data
+
 
 async def novels(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Muestra la primera página de novelas con botones de paginación"""
@@ -52,7 +60,7 @@ async def show_novels_page(update: Update, context: ContextTypes.DEFAULT_TYPE, p
     
     # Botones para cada novela
     for novel in novels_page:
-        keyboard.append([InlineKeyboardButton(novel["name"], callback_data=f"novel_{novel['gameid']}")])
+        keyboard.append([InlineKeyboardButton(novel["name"], callback_data=f"novel_{novel['id']}")])
     
     # Botones de paginación
     pagination_buttons = []
@@ -84,87 +92,121 @@ async def show_novels_page(update: Update, context: ContextTypes.DEFAULT_TYPE, p
     else:
         await update.message.reply_text(
             text=f"📚 Novelas traducidas (página {page+1}):",
-            reply_markup=reply_markup
+            reply_markup=reply_markup,
+            parse_mode="HTML"
         )
 
-async def show_novel_details(update: Update, context: ContextTypes.DEFAULT_TYPE, gameid: str):
+async def show_novel_details(update: Update, context: ContextTypes.DEFAULT_TYPE, id: str):
     """Muestra los detalles de una novela específica"""
-    # Obtener datos de la API
-    api_url = f"https://itch.io/api/1/{itch_token}/game/{gameid}"
+    api_url = f"https://backend-vv25.vercel.app/api/apigame/{id}"
 
-    response = requests.get(api_url)
-    
-    if response.status_code != 200:
-        await update.callback_query.answer("Error al obtener los detalles de la novela")
-        return
-    
-    game_data = response.json()["game"]
-    
-    # Buscar la novela en nuestra lista para obtener el link
-    novel_info = next((n for n in NOVELS_LIST if n["gameid"] == gameid), None)
-    
-    if not novel_info:
-        await update.callback_query.answer("Novela no encontrada")
-        return
-    
-    # Formatear mensaje con los detalles
-    message_parts = [
-        f"📖 <b>{game_data['title']}</b>\n\n"
-    ]
-
-    if game_data.get('short_text'):
-        message_parts.append(f"🔹 <i>{game_data['short_text']}</i>\n\n")
-    
-    if game_data.get('user', {}).get('display_name'):
-        message_parts.append(f"👤 <b>Autor:</b> {game_data['user']['display_name']}\n")
-
-    message_parts.extend([
-        f"🌐 <b>Página oficial:</b> {novel_info['link']}\n",
-        f"📅 <b>Publicado:</b> {game_data['published_at'].split('T')[0]}\n",
-        f"💰 <b>Precio mínimo:</b> ${game_data['min_price'] if game_data.get('min_price') is not None else 'Gratis'}\n\n"
-        "<b>Descargalo desde el siguiente enlace de <a href='https://1024terabox.com/s/1BH1epgCdYnn-yFWZHqtcSw'>Terabox</a></b>\n"
-        "<i><b>Nota:</b> Necesitas una cuenta para poder descargarlo.</i>"
-    ])
-
-    message = ''.join(message_parts)
-    
-    keyboard = [
-        [InlineKeyboardButton("🔙 Volver a la lista", callback_data=f"back_to_list_0")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
     try:
-        # Primero editar el mensaje existente a texto plano
-        await update.callback_query.edit_message_text(
-            text="Cargando detalles...",
-            reply_markup=None
-        )
+        response = requests.get(api_url)
+        response.raise_for_status()
+        game_data = response.json()
         
-        if game_data.get('cover_url'):
-            # Enviar la foto como nuevo mensaje
-            await update.callback_query.message.reply_photo(
-                photo=game_data['cover_url'],
-                caption=message,
-                parse_mode='HTML',
-                reply_markup=reply_markup
-            )
-            # Eliminar el mensaje anterior
-            await update.callback_query.delete_message()
-        else:
-            # Si no hay foto, editar el mensaje con los detalles
-            await update.callback_query.edit_message_text(
-                text=message,
-                parse_mode='HTML',
-                reply_markup=reply_markup
-            )
-    except Exception as e:
-        print(f"Error al mostrar detalles: {e}")
-        # Si falla todo, enviar un nuevo mensaje
-        await update.callback_query.message.reply_text(
+        # Buscar la novela en nuestra lista para obtener el link
+        novel_info = next((n for n in NOVELS_LIST if n["id"] == int(id)), None)
+        ##novel_info = next((n for n in NOVELS_LIST if n["id"] == id), None)
+        
+        if not novel_info:
+            await update.callback_query.answer("Novela no encontrada")
+            return
+        
+        # # Formatear mensaje con los detalles
+        message_parts = []
+
+        # Obtener el objeto game del JSON (si existe)
+        game_info = game_data.get('game', {}) if isinstance(game_data, dict) else {}
+
+        # Título del juego
+        if game_info.get('title'):
+            message_parts.append(f"📖 <b>{game_info['title']}</b>\n\n")
+
+        # Descripción corta
+        if game_info.get('short_text'):
+            message_parts.append(f"🔹 <i>{game_info['short_text']}</i>\n\n")
+
+        # Información del autor
+        if game_info.get('user', {}).get('display_name'):
+            user_info = game_info['user']
+            author_line = f"👤 <b>Autor:</b> {user_info['display_name']}"
+            if user_info.get('url'):
+                author_line += f" (<a href='{user_info['url']}'>itch.io</a>)"
+            message_parts.append(f"{author_line}\n")
+
+        # Información básica del juego
+        info_lines = [
+            f"🌐 <b>Página oficial:</b> {novel_info.get('link', game_info.get('url', 'No disponible'))}\n",
+            f"📅 <b>Publicado:</b> {game_info.get('published_at', '').split('T')[0]}\n",
+            f"💰 <b>Precio mínimo:</b> ${game_info.get('min_price', 0) if game_info.get('min_price') is not None else 'Gratis'}\n\n"
+        ]
+
+        # Plataformas disponibles (si existen)
+        platforms = {
+            'p_windows': 'Windows',
+            'p_linux': 'Linux',
+            'p_osx': 'macOS',
+            'p_android': 'Android'
+        }
+
+        available_platforms = [
+            platforms[trait] 
+            for trait in game_info.get('traits', []) 
+            if trait in platforms
+        ]
+
+        if available_platforms:
+            info_lines.append(f"🖥️ <b>Plataformas:</b> {', '.join(available_platforms)}\n")
+
+        message_parts.extend(info_lines)
+
+        # Información de descarga
+        message_parts.extend([
+            "<b>Descárgalo desde:</b>\n",
+            "🔗 <a href='https://1024terabox.com/s/1BH1epgCdYnn-yFWZHqtcSw'>Terabox</a>\n",
+            "<i>Nota: Necesitas una cuenta para poder descargarlo.</i>"
+        ])
+
+        # Unir todas las partes del mensaje
+
+        message = ''.join(message_parts)
+        
+        keyboard = [
+            [InlineKeyboardButton("🔙 Volver a la lista", callback_data=f"back_to_list_0")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        # Intentar mostrar la imagen de portada si existe
+        if game_info.get('cover_url'):
+            cover_url = game_info.get('cover_url') or game_data.get('cover_image')
+        
+        if cover_url:
+            try:
+                await update.callback_query.message.reply_photo(
+                    photo=cover_url,
+                    caption=message,
+                    parse_mode='HTML',
+                    reply_markup=reply_markup
+                )
+                await update.callback_query.delete_message()
+                return
+            except Exception as e:
+                print(f"Error al enviar foto: {e}")
+        
+        # Si no hay foto o falló el envío, enviar solo texto
+        await update.callback_query.edit_message_text(
             text=message,
             parse_mode='HTML',
             reply_markup=reply_markup
         )
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error en la petición HTTP: {e}")
+        await update.callback_query.answer("Error al conectar con el servidor")
+    except Exception as e:
+        print(f"Error inesperado: {e}")
+        await update.callback_query.answer("Ocurrió un error al mostrar los detalles")
 
 async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Manejador de callbacks para los botones inline"""
@@ -179,8 +221,8 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await show_novels_page(update, context, page)
     elif data.startswith("novel_"):
         # Mostrar detalles de una novela
-        gameid = data.split("_")[1]
-        await show_novel_details(update, context, gameid)
+        id = data.split("_", 1)[1]
+        await show_novel_details(update, context, id)
     elif data.startswith("back_to_list_"):
         try:
             page = int(data[len("back_to_list_"):])  # extrae directamente el número después del prefijo
@@ -191,8 +233,9 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 application = ApplicationBuilder().token(api_token).build()
 
 application.add_handler(CommandHandler("start", say_hello))
-application.add_handler(CommandHandler("help", help))
+application.add_handler(CommandHandler("help", help_command))
 application.add_handler(CommandHandler("novels", novels))
 application.add_handler(CallbackQueryHandler(handle_callback))
 
-application.run_polling(allowed_updates=Update.ALL_TYPES)
+## application.run_polling(allowed_updates=Update.ALL_TYPES)
+application.run_polling()
