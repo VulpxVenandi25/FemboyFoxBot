@@ -12,6 +12,11 @@ commands = [
     {"command": "/novels", "description": "Da una lista de todas las novelas traducidas."}
 ]
 
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'Accept': 'application/json'
+}
+
 async def say_hello(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = update.message.from_user.full_name
     await update.message.reply_html(f"""
@@ -31,14 +36,8 @@ Encantado de ayudar, los comando disponibles por ahora son los siguientes:
 
 # Cargar datos de novelas traducidas desde la API
 novels_data = []
-try:
-    response = requests.get("https://backend-vv25.vercel.app/api/novels")
-    response.raise_for_status()
-    novels_data = response.json()
-except requests.exceptions.RequestException as e:
-    print(f"Error en la petición HTTP: {e}")
-except Exception as e:
-    print(f"Error inesperado: {e}")
+with open("json/novels.json", "r") as f:
+    novels_data = json.load(f)
 
 # Configuración
 ITEMS_PER_PAGE = 10
@@ -98,7 +97,7 @@ async def show_novels_page(update: Update, context: ContextTypes.DEFAULT_TYPE, p
 
 async def show_novel_details(update: Update, context: ContextTypes.DEFAULT_TYPE, id: str):
     """Muestra los detalles de una novela específica"""
-    api_url = f"https://backend-vv25.vercel.app/api/apigame/{id}"
+    api_url = f"https://itch.io/api/1/{itch_token}/game/{id}"
 
     try:
         response = requests.get(api_url)
@@ -178,8 +177,8 @@ async def show_novel_details(update: Update, context: ContextTypes.DEFAULT_TYPE,
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         # Intentar mostrar la imagen de portada si existe
-        if game_info.get('cover_url'):
-            cover_url = game_info.get('cover_url') or game_data.get('cover_image')
+        
+        cover_url = game_info.get('cover_url') or game_data.get('cover_image')
         
         if cover_url:
             try:
