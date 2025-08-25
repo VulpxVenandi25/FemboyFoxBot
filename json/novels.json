@@ -70,14 +70,14 @@
     "link": "https://roddio.itch.io/devils-gambit"
   },
   {
-    "gameid": "936019",
-    "name": "Fatal Force",
-    "link": "https://darkdragon563.itch.io/fatal-force"
-  },
-  {
     "gameid": "732420",
     "name": "Far Beyond The World",
     "link": "https://echoesofarcane.itch.io/farbeyondtheworld"
+  },
+  {
+    "gameid": "936019",
+    "name": "Fatal Force",
+    "link": "https://darkdragon563.itch.io/fatal-force"
   },
   {
     "gameid": "1930958",
@@ -105,9 +105,24 @@
     "link": "https://echoproject.itch.io/glory-hounds"
   },
   {
+    "gameid": "1960390",
+    "name": "Gnoll Way Home",
+    "link": "https://gnollhole.itch.io/gnoll-way-home"
+  },
+  {
     "gameid": "627153",
     "name": "Hero's Advent",
     "link": "https://platier.itch.io/heros-advent"
+  },
+  {
+    "gameid": "2713059",
+    "name": "I Want Out",
+    "link": "https://konpeitocat.itch.io/im-now-the-school-delinquents-lover-but-i-want-out"
+  },
+  {
+    "gameid": "3299052",
+    "name": "IDUNN",
+    "link": "https://polar-cake.itch.io/idunn"
   },
   {
     "gameid": "1064059",
@@ -118,11 +133,6 @@
     "gameid": "1819787",
     "name": "In Finite Space",
     "link": "https://infinitespacevn.itch.io/"
-  },
-  {
-    "gameid": "2713059",
-    "name": "I Want Out",
-    "link": "https://konpeitocat.itch.io/im-now-the-school-delinquents-lover-but-i-want-out"
   },
   {
     "gameid": "758351",
@@ -155,14 +165,14 @@
     "link": "https://rodablackfang.itch.io/monster-village-vn"
   },
   {
-    "gameid": "1260272",
-    "name": "Moonlight Castle",
-    "link": "https://keykoz.itch.io/moonlight-castle"
-  },
-  {
     "gameid": "2887897",
     "name": "Moon Touched",
     "link": "https://sanima.itch.io/moontouched"
+  },
+  {
+    "gameid": "1260272",
+    "name": "Moonlight Castle",
+    "link": "https://keykoz.itch.io/moonlight-castle"
   },
   {
     "gameid": "3209535",
@@ -235,6 +245,11 @@
     "link": "https://brickzed.itch.io/silverstone-the-morning-after"
   },
   {
+    "gameid": "523318",
+    "name": "Soccially Awkward",
+    "link": "https://monchimutt.itch.io/socially-awkward"
+  },
+  {
     "gameid": "1571930",
     "name": "Soulcreek",
     "link": "https://ryuovn.itch.io/soulcreek"
@@ -243,11 +258,6 @@
     "gameid": "1213793",
     "name": "Super Nova",
     "link": "https://rotshild.itch.io/super-nova"
-  },
-  {
-    "gameid": "523318",
-    "name": "Soccially Awkward",
-    "link": "https://monchimutt.itch.io/socially-awkward"
   },
   {
     "gameid": "1715739",
@@ -288,6 +298,11 @@
     "gameid": "1928558",
     "name": "Under the Full Bright Moon",
     "link": "https://museproductionsteam.itch.io/under-the-bright-full-moon"
+  },
+  {
+    "gameid": "1526081",
+    "name": "When I Knew You",
+    "link": "https://konpeitocat.itch.io/when-i-knew-you"
   },
   {
     "gameid": "1063742",
