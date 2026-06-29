@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>🦊 FemboyFoxBot</h1>
+    <div class="sub">Panel de control del bot de Telegram</div>
+
+    <div class="card">
+      <div class="row">
+        <span class="label">Estado</span
+        ><span id="status" class="badge off">🔴 Detenido</span>
+      </div>
+      <div class="row">
+        <span class="label">Uptime</span
+        ><span id="uptime" class="value">-</span>
+      </div>
+      <div class="row">
+        <span class="label">Última interacción</span
+        ><span id="last" class="value">-</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="margin-bottom: 8px">
+        <span class="label">📋 Eventos recientes</span>
+      </div>
+      <div id="events">Esperando...</div>
+    </div>
+
+    <script src="scripts.js"></script>
+  </body>
+</html>
